@@ -1,0 +1,1 @@
+{"root":["./src/app.tsx","./src/main.tsx","./src/components/ui/button.tsx","./src/components/ui/header-1.tsx","./src/components/ui/hero-1.tsx","./src/components/ui/infinite-slider.tsx","./src/components/ui/logo-cloud-3.tsx","./src/components/ui/menu-toggle-icon.tsx","./src/components/ui/use-scroll.ts","./src/lib/utils.ts"],"errors":true,"version":"5.9.3"}
