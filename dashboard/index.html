@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Pulse — Your Daily AI Intelligence Feed</title>
+  <meta name="description"
+    content="A beautiful, real-time dashboard aggregating the best AI newsletter content from Ben's Bites and The Rundown AI — filtered to the last 24 hours." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+  <!-- ── Animated Background ── -->
+  <div class="bg-orbs" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <!-- ── Header ── -->
+  <header class="header">
+    <div class="header-inner container">
+      <div class="brand">
+        <div class="brand-icon" aria-hidden="true">
+          <img src="GladioHorizontalBlack.svg" alt="Gladio Logo" class="gladio-logo" />
+        </div>
+        <div class="brand-text">
+          <span class="brand-name">AI Pulse</span>
+          <span class="brand-tagline">24-hour intelligence feed</span>
+        </div>
+      </div>
+
+      <nav class="header-controls" role="navigation" aria-label="Dashboard controls">
+        <div class="last-updated" id="lastUpdated" aria-live="polite">—</div>
+        <button class="btn btn-ghost" id="btnSavedView" aria-pressed="false">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+          </svg>
+          Saved <span class="saved-badge" id="savedCount">0</span>
+        </button>
+        <button class="btn btn-primary" id="btnRefresh" aria-label="Refresh articles">
+          <svg class="spin-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 2v6h-6" />
+            <path d="M3 12a9 9 0 0 1 15-6.7L21 8" />
+            <path d="M3 22v-6h6" />
+            <path d="M21 12a9 9 0 0 1-15 6.7L3 16" />
+          </svg>
+          Refresh
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ── Hero Stats Bar ── -->
+  <section class="stats-bar container" aria-label="Feed statistics">
+    <div class="stat-card" id="statTotal">
+      <span class="stat-num" id="statTotalNum">—</span>
+      <span class="stat-label">Total Articles</span>
+    </div>
+    <div class="stat-card" id="statBens">
+      <span class="stat-num" id="statBensNum">—</span>
+      <span class="stat-label">Ben's Bites</span>
+    </div>
+    <div class="stat-card" id="statRundown">
+      <span class="stat-num" id="statRundownNum">—</span>
+      <span class="stat-label">The Rundown AI</span>
+    </div>
+    <div class="stat-card" id="statSaved">
+      <span class="stat-num" id="statSavedNum">0</span>
+      <span class="stat-label">Saved</span>
+    </div>
+  </section>
+
+  <!-- ── Filter Bar ── -->
+  <div class="filter-bar container" role="toolbar" aria-label="Filter articles">
+    <div class="filter-tabs" role="tablist">
+      <button class="filter-tab active" role="tab" aria-selected="true" data-filter="all" id="tab-all">All
+        Sources</button>
+      <button class="filter-tab" role="tab" aria-selected="false" data-filter="bens_bites" id="tab-bens">
+        <span class="source-dot" style="background:#f97316"></span>Ben's Bites
+      </button>
+      <button class="filter-tab" role="tab" aria-selected="false" data-filter="the_rundown_ai" id="tab-rundown">
+        <span class="source-dot" style="background:#6366f1"></span>The Rundown AI
+      </button>
+    </div>
+    <div class="search-wrap">
+      <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="8" />
+        <path d="m21 21-4.35-4.35" />
+      </svg>
+      <input type="search" class="search-input" id="searchInput" placeholder="Search articles…"
+        aria-label="Search articles" autocomplete="off" />
+    </div>
+  </div>
+
+  <!-- ── Main Content ── -->
+  <main class="container main-content" role="main">
+
+    <!-- Loading State -->
+    <div class="state-loading" id="stateLoading" aria-live="polite" aria-label="Loading articles">
+      <div class="loader-ring"></div>
+      <p class="state-title">Fetching the latest AI intelligence…</p>
+      <p class="state-sub">Scraping Ben's Bites & The Rundown AI</p>
+    </div>
+
+    <!-- Error State -->
+    <div class="state-empty hidden" id="stateError" role="alert">
+      <div class="state-icon">⚠️</div>
+      <p class="state-title">Couldn't fetch articles</p>
+      <p class="state-sub" id="stateErrorMsg">Check that the server is running and try again.</p>
+      <button class="btn btn-primary" id="btnRetry">Try Again</button>
+    </div>
+
+    <!-- Empty State (no articles in 24h) -->
+    <div class="state-empty hidden" id="stateEmpty">
+      <div class="state-icon">📭</div>
+      <p class="state-title">Nothing new in the last 24 hours</p>
+      <p class="state-sub">Check back soon — newsletters usually drop in the morning.</p>
+    </div>
+
+    <!-- No Search Results -->
+    <div class="state-empty hidden" id="stateNoResults">
+      <div class="state-icon">🔍</div>
+      <p class="state-title">No matches found</p>
+      <p class="state-sub">Try different keywords or clear the search.</p>
+    </div>
+
+    <!-- Articles Grid -->
+    <div class="articles-grid" id="articlesGrid" aria-label="Article feed" role="feed"></div>
+
+  </main>
+
+  <!-- ── Article Card Template ── -->
+  <template id="articleTemplate">
+    <article class="article-card" role="article">
+      <div class="card-header">
+        <div class="source-badge">
+          <span class="source-emoji"></span>
+          <span class="source-name"></span>
+        </div>
+        <button class="save-btn" aria-label="Save article" title="Save article">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+          </svg>
+        </button>
+      </div>
+      <div class="card-body">
+        <h2 class="card-title"></h2>
+        <p class="card-summary"></p>
+      </div>
+      <div class="card-footer">
+        <time class="card-time"></time>
+        <a class="card-link" href="#" target="_blank" rel="noopener noreferrer" aria-label="Read full article">
+          Read →
+        </a>
+      </div>
+    </article>
+  </template>
+
+  <!-- ── Toast Notification ── -->
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="app.js"></script>
+</body>
+
+</html>
